@@ -11,8 +11,16 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             display: flex;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        /* Animación de aparición */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Menú lateral */
@@ -22,14 +30,15 @@
             left: 0;
             width: 250px;
             height: 100%;
-            background-color: #007BFF;
-            color: white;
+            background-color: white;
+            color: #333;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px 0;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar.active {
@@ -41,18 +50,19 @@
             height: 100px;
             border-radius: 50%;
             margin-bottom: 20px;
+            border: 2px solid #007BFF;
         }
 
         .sidebar a {
             text-decoration: none;
-            color: white;
+            color: #333;
             margin: 10px 0;
             font-size: 18px;
             transition: color 0.3s ease;
         }
 
         .sidebar a:hover {
-            color: #ffcc00;
+            color: #007BFF;
         }
 
         .toggle-btn {
@@ -69,13 +79,72 @@
             color: #0056b3;
         }
 
-        /* Contenedor de niveles */
-        .levels-container {
+        /* Contenedor de idiomas */
+        .languages-container {
             margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .languages-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .languages-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .language {
+            width: 150px;
+            height: 150px;
+            background-color: white;
+            border: 2px solid #007BFF;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #007BFF;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .language:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Contenedor de niveles */
+        .levels-container {
+            margin-left: 260px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
+        }
+
+        .levels-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .levels-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
             justify-content: center;
             align-items: center;
         }
@@ -94,6 +163,7 @@
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
 
         .level:hover {
@@ -106,25 +176,55 @@
     <div class="toggle-btn" id="toggle-btn">☰</div>
 
     <div class="sidebar" id="sidebar">
-        <img src="perfil.png" alt="Imagen de perfil">
+        <img src="Logo1.png" alt="Imagen de perfil">
         <a href="#">Ajustes</a>
         <a href="#">Salir</a>
     </div>
 
-    <div class="levels-container">
-        <div class="level">Nivel 1</div>
-        <div class="level">Nivel 2</div>
-        <div class="level">Nivel 3</div>
-        <div class="level">Nivel 4</div>
-        <div class="level">Nivel 5</div>
+    <div class="languages-container" id="languages-container">
+        <div class="languages-title">Selecciona un idioma para practicar:</div>
+        <div class="languages-grid">
+            <div class="language" data-language="Quechua">Quechua</div>
+            <div class="language" data-language="Aymara">Aymara</div>
+            <div class="language" data-language="Guaraní">Guaraní</div>
+            <div class="language" data-language="Náhuatl">Náhuatl</div>
+            <div class="language" data-language="Mapudungun">Mapudungun</div>
+        </div>
+    </div>
+
+    <div class="levels-container" id="levels-container">
+        <div class="levels-title">Niveles para que practiques tus idiomas :3</div>
+        <div class="levels-grid" id="levels-grid"></div>
     </div>
 
     <script>
         const toggleBtn = document.getElementById('toggle-btn');
         const sidebar = document.getElementById('sidebar');
+        const languagesContainer = document.getElementById('languages-container');
+        const levelsContainer = document.getElementById('levels-container');
+        const levelsGrid = document.getElementById('levels-grid');
 
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.language').forEach(language => {
+            language.addEventListener('click', () => {
+                const selectedLanguage = language.getAttribute('data-language');
+                languagesContainer.style.display = 'none';
+                levelsContainer.style.display = 'flex';
+
+                levelsGrid.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const levelDiv = document.createElement('div');
+                    levelDiv.className = 'level';
+                    levelDiv.textContent = `Nivel ${i}`;
+                    levelDiv.addEventListener('click', () => {
+                        window.location.href = `Nivel${i}${selectedLanguage}.html`;
+                    });
+                    levelsGrid.appendChild(levelDiv);
+                }
+            });
         });
     </script>
 </body>
