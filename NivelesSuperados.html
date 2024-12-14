@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niveles Superados</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 3px solid #84fab0;
+        }
+
+        .sidebar .username {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #333;
+            margin: 10px 0;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            color: #84fab0;
+        }
+
+        .sidebar a.active {
+            color: #84fab0;
+            font-weight: bold;
+        }
+
+        .sidebar hr {
+            width: 80%;
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 101;
+        }
+
+        .toggle-btn:hover {
+            color: #84fab0;
+        }
+
+        .levels-container {
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            width: calc(100% - 260px);
+        }
+
+        .levels-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .levels-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .level {
+            width: 180px;
+            height: 200px;
+            background: #ffffff;
+            border: 3px solid #84fab0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .level:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .level .stars {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            width: 20px;
+            height: 20px;
+            background: url('star-empty.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        .star.filled {
+            background: url('star-filled.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        .level.completed {
+            border-color: #84fab0;
+            background: linear-gradient(45deg, #84fab0, #8fd3f4);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="toggle-btn" id="toggle-btn">☰</div>
+
+    <div class="sidebar" id="sidebar">
+        <img src="Logo1.png" alt="Imagen de perfil">
+        <div class="username">Usuario</div>
+        <hr>
+        <a href="PracticaInicio.html">Inicio</a>
+        <a href="Configuracion.html">Configuración</a>
+        <a href="NivelesSuperados.html" class="active">Niveles superados</a>
+        <a href="Index.html">Cerrar sesión</a>
+    </div>
+
+    <div class="levels-container" id="levels-container">
+        <div class="levels-title">Niveles Superados - Idioma: <span id="selected-language">---</span></div>
+        <div class="levels-grid" id="levels-grid"></div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+        const levelsGrid = document.getElementById('levels-grid');
+        const selectedLanguage = document.getElementById('selected-language');
+
+        // Simulación de idioma seleccionado y progreso
+        const language = "Quechua";
+        const progress = [3, 5, 2, 4, 5]; // Número de estrellas por nivel (1-5)
+
+        selectedLanguage.textContent = language;
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Generar niveles con estrellas
+        progress.forEach((stars, index) => {
+            const levelDiv = document.createElement('div');
+            levelDiv.className = 'level';
+
+            const title = document.createElement('div');
+            title.textContent = `Nivel ${index + 1}`;
+
+            const starsContainer = document.createElement('div');
+            starsContainer.className = 'stars';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                if (i <= stars) {
+                    star.classList.add('filled');
+                }
+                starsContainer.appendChild(star);
+            }
+
+            levelDiv.appendChild(title);
+            levelDiv.appendChild(starsContainer);
+            levelsGrid.appendChild(levelDiv);
+        });
+    </script>
+</body>
+</html>
