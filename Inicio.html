@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Preguntas e Imágenes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            text-align: center;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        #loadingMessage {
+            display: none;
+            margin-bottom: 20px;
+            color: #3498db;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #questionsContainer {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .question label {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .options {
+            margin-top: 5px;
+        }
+        .options label {
+            display: block;
+            font-size: 16px;
+            color: #34495e;
+            margin-bottom: 5px;
+        }
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-buttons {
+            margin-top: 20px;
+        }
+        .nav-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: #2980b9;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #dropZone {
+            border: 2px dashed #3498db;
+            padding: 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        #dropZone:hover {
+            background-color: #e0f7fa;
+        }
+        #endMessage {
+            display: none;
+            margin-top: 20px;
+            color: #2c3e50;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1>Subir archivo y detectar preguntas e imágenes</h1>
+        <input type="file" id="fileInput" accept=".pdf, .doc, .docx, .txt, .xls, .xlsx">
+        <div id="dropZone">O arrastra y suelta tu archivo aquí</div>
+        <div id="loadingMessage">Cargando... por favor espera.</div>
+        <div id="questionsContainer"></div>
+        <div class="nav-buttons">
+            <button id="prevButton" class="nav-button" style="display:none;">Anterior</button>
+            <button id="nextButton" class="nav-button" style="display:none;">Siguiente</button>
+            <button id="resetButton" class="nav-button" style="display:none;">Reiniciar</button>
+        </div>
+        <div id="endMessage">¡Has respondido todas las preguntas!</div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const questionsContainer = document.getElementById('questionsContainer');
+        const mainContainer = document.getElementById('mainContainer');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const resetButton = document.getElementById('resetButton');
+        const endMessage = document.getElementById('endMessage');
+
+        let questionsWithOptions = [];
+        let currentQuestionIndex = 0;
+
+        fileInput.addEventListener('change', handleFileSelect);
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#e0f7fa';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.backgroundColor = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileSelect({ target: { files: [file] } });
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                loadingMessage.style.display = 'block';
+                questionsContainer.style.display = 'none';
+                mainContainer.classList.add('loading');
+
+                const fileType = file.name.split('.').pop().toLowerCase();
+                if (fileType === 'pdf') {
+                    processPDF(file);
+                } else if (fileType === 'doc' || fileType === 'docx') {
+                    processWord(file);
+                } else if (fileType === 'xls' || fileType === 'xlsx') {
+                    processExcel(file);
+                } else if (fileType === 'txt') {
+                    processText(file);
+                } else {
+                    alert('Formato de archivo no compatible.');
+                    loadingMessage.style.display = 'none';
+                    mainContainer.classList.remove('loading');
+                }
+            }
+        }
+
+        function processPDF(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function () {
+                const typedarray = new Uint8Array(this.result);
+                pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+                    let textPromises = [];
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        textPromises.push(pdf.getPage(i).then(page => {
+                            return page.getTextContent().then(textContent => {
+                                let pageText = '';
+                                textContent.items.forEach(item => {
+                                    pageText += item.str + ' ';
+                                });
+                                return pageText;
+                            });
+                        }));
+                    }
+                    Promise.all(textPromises).then(function (pages) {
+                        let fullText = pages.join(' ');
+                        processTextContent(fullText);
+                    });
+                });
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function processWord(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                mammoth.extractRawText({ arrayBuffer: event.target.result }).then(result => {
+                    processTextContent(result.value);
+                });
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function processExcel(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetText = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+                processTextContent(sheetText);
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function processText(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                const text = event.target.result;
+                processTextContent(text); }; fileReader.readAsText(file); }
+                function processTextContent(text) {
+        questionsWithOptions = [];
+        const lines = text.split('\n');
+        lines.forEach(line => {
+            const questionMatch = line.match(/^(.*?)\?+/);
+            if (questionMatch) {
+                const question = questionMatch[1].trim();
+                const options = [];
+                let nextLineIndex = lines.indexOf(line) + 1;
+
+                while (nextLineIndex < lines.length) {
+                    const nextLine = lines[nextLineIndex].trim();
+                    if (nextLine === '' || !nextLine.match(/^[a-zA-Z0-9\)\.]/)) break; // Detecta si la línea es vacía o no tiene opciones válidas.
+                    options.push(nextLine);
+                    nextLineIndex++;
+                }
+
+                questionsWithOptions.push({ question, options });
+            }
+        });
+
+        loadingMessage.style.display = 'none';
+        dropZone.style.display = 'none';
+        fileInput.style.display = 'none';
+        displayQuestion(0);
+    }
+
+    function displayQuestion(index) {
+        if (index >= 0 && index < questionsWithOptions.length) {
+            currentQuestionIndex = index;
+            const questionData = questionsWithOptions[currentQuestionIndex];
+            questionsContainer.innerHTML = `
+                <div class="question">
+                    <label>${questionData.question}?</label>
+                    <div class="options">${questionData.options.map(opt => `<label><input type="checkbox"> ${opt}</label>`).join('')}</div>
+                </div>
+            `;
+            questionsContainer.style.display = 'block';
+            prevButton.style.display = index > 0 ? 'inline-block' : 'none';
+            nextButton.style.display = index < questionsWithOptions.length - 1 ? 'inline-block' : 'none';
+            resetButton.style.display = index === questionsWithOptions.length - 1 ? 'inline-block' : 'none';
+            questionsContainer.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            endQuiz();
+        }
+    }
+
+    function endQuiz() {
+        endMessage.style.display = 'block';
+        endMessage.style.opacity = '1';
+        questionsContainer.style.display = 'none';
+        prevButton.style.display = 'none';
+        nextButton.style.display = 'none';
+        resetButton.style.display = 'none';
+    }
+
+    resetButton.addEventListener('click', () => {
+        location.reload(); // Reinicia la página
+    });
+
+    prevButton.addEventListener('click', () => displayQuestion(currentQuestionIndex - 1));
+    nextButton.addEventListener('click', () => displayQuestion(currentQuestionIndex + 1));
+</script>
+</body> 
+</html>

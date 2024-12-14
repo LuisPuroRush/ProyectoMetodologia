@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta</title>
+    <style>
+        /* Estilo general */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Logo en el centro */
+        .logo-container {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: fadeIn 1s ease;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            animation: popIn 1s ease;
+        }
+
+        /* Contenedor de las preguntas */
+        .question-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
+            animation: fadeIn 1s ease 1s;
+        }
+
+        .question-container:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .question-container h2 {
+            margin: 10px 0;
+            color: #333;
+            animation: slideIn 1s ease;
+        }
+
+        .question-container label {
+            display: block;
+            margin: 10px 0;
+            font-size: 14px;
+            animation: slideIn 1s ease;
+        }
+
+        .question-container button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: slideIn 1s ease;
+        }
+
+        .question-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Decoración de cuadrados */
+        .color-squares {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .color-squares div {
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .square1 { background: #FF5733; }
+        .square2 { background: #33FF57; }
+        .square3 { background: #3357FF; }
+        .square4 { background: #FF33A6; }
+        .square5 { background: #FFC733; }
+        .square6 { background: #33FFF2; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo">
+    </div>
+
+    <div class="question-container" id="question-container">
+        <h2 id="question-title">¿Quién te recomendó esta página web?</h2>
+        <div id="question-content">
+            <label><input type="radio" name="recomendacion" required> Redes sociales</label>
+            <label><input type="radio" name="recomendacion"> Familia, amigos</label>
+            <label><input type="radio" name="recomendacion"> Búsqueda en Google</label>
+            <label><input type="radio" name="recomendacion"> Publicidad</label>
+        </div>
+        <button id="next-button">Guardar</button>
+    </div>
+
+    <div class="color-squares">
+        <div class="square1"></div>
+        <div class="square2"></div>
+        <div class="square3"></div>
+        <div class="square4"></div>
+        <div class="square5"></div>
+        <div class="square6"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                title: "¿Quién te recomendó esta página web?",
+                content: `
+                    <label><input type="radio" name="recomendacion" required> Redes sociales</label>
+                    <label><input type="radio" name="recomendacion"> Familia, amigos</label>
+                    <label><input type="radio" name="recomendacion"> Búsqueda en Google</label>
+                    <label><input type="radio" name="recomendacion"> Publicidad</label>
+                `
+            },
+            {
+                title: "¿Ya has practicado alguna de estas lenguas indígenas?",
+                content: `
+                    <label><input type="checkbox"> Quechua</label>
+                    <label><input type="checkbox"> Aymara</label>
+                    <label><input type="checkbox"> Guaraní</label>
+                    <label><input type="checkbox"> Náhuatl</label>
+                    <label><input type="checkbox"> Mapudungun</label>
+                `
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        const questionContainer = document.getElementById('question-container');
+        const questionTitle = document.getElementById('question-title');
+        const questionContent = document.getElementById('question-content');
+        const nextButton = document.getElementById('next-button');
+
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                questionTitle.textContent = questions[currentQuestionIndex].title;
+                questionContent.innerHTML = questions[currentQuestionIndex].content;
+            } else {
+                alert("Perfecto, gracias por responder las preguntas");
+                window.location.href = 'PracticaInicio.html';
+            }
+        });
+    </script>
+</body>
+</html>
