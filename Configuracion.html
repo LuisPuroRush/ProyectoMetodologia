@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(120deg, #84fab0, #8fd3f4);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        /* Animación de aparición */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Menú lateral */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 3px solid #84fab0;
+        }
+
+        .sidebar .username {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #333;
+            margin: 10px 0;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar a.active {
+            color: #84fab0;
+            font-weight: bold;
+        }
+
+        .sidebar a:hover {
+            color: #84fab0;
+        }
+
+        .sidebar hr {
+            width: 80%;
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        /* Contenedor de configuración */
+        .settings-container {
+            margin-left: 260px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .settings-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .settings-form label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .settings-form input,
+        .settings-form textarea,
+        .settings-form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .settings-form button {
+            background: #84fab0;
+            color: #ffffff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .settings-form button:hover {
+            background: #72e4a1;
+        }
+
+        .dark-mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .dark-mode-toggle input {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <img src="Logo1.png" alt="Imagen de perfil">
+        <div class="username">Usuario</div>
+        <hr>
+        <a href="Index.html">Inicio</a>
+        <a href="NivelesSuperados.html">Niveles superados</a>
+        <a href="Configuracion.html" class="active">Configuración</a>
+        <a href="Index.html">Cerrar sesión</a>
+    </div>
+
+    <div class="settings-container">
+        <div class="settings-title">Configuración de la cuenta</div>
+        <form class="settings-form">
+            <label for="profile-pic">Imagen de perfil</label>
+            <input type="file" id="profile-pic" accept="image/*">
+
+            <label for="username">Nombre de usuario</label>
+            <input type="text" id="username" placeholder="Nuevo nombre de usuario">
+
+            <label for="description">Descripción</label>
+            <textarea id="description" rows="4" placeholder="Escribe una descripción..."></textarea>
+
+            <div class="dark-mode-toggle">
+                <label for="dark-mode">Modo oscuro</label>
+                <input type="checkbox" id="dark-mode">
+            </div>
+
+            <button type="submit">Guardar cambios</button>
+            <button type="button" style="background: #ff4d4d;" onclick="deleteAccount()">Eliminar cuenta</button>
+        </form>
+    </div>
+
+    <script>
+        // Función para activar el modo oscuro
+        document.getElementById('dark-mode').addEventListener('change', function() {
+            if (this.checked) {
+                document.body.style.background = '#333';
+                document.body.style.color = '#fff';
+            } else {
+                document.body.style.background = 'linear-gradient(120deg, #84fab0, #8fd3f4)';
+                document.body.style.color = '#000';
+            }
+        });
+
+        // Función para eliminar cuenta
+        function deleteAccount() {
+            if (confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+                alert('Cuenta eliminada');
+                window.location.href = 'Index.html';
+            }
+        }
+    </script>
+</body>
+</html>
